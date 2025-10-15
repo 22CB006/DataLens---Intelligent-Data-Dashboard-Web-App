@@ -101,12 +101,27 @@ async def shutdown_event():
     print(f"👋 {settings.APP_NAME} shutting down...")
 
 
-# API Routes will be added here
-# Example:
-# from app.api import auth, datasets, analysis
-# app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
-# app.include_router(datasets.router, prefix="/api/v1/datasets", tags=["Datasets"])
-# app.include_router(analysis.router, prefix="/api/v1/analysis", tags=["Analysis"])
+# Import API routers
+from app.api import auth, datasets, analysis
+
+# Include API routers with versioning
+app.include_router(
+    auth.router,
+    prefix="/api/v1/auth",
+    tags=["Authentication"]
+)
+
+app.include_router(
+    datasets.router,
+    prefix="/api/v1/datasets",
+    tags=["Datasets"]
+)
+
+app.include_router(
+    analysis.router,
+    prefix="/api/v1/analysis",
+    tags=["Analysis"]
+)
 
 
 # What's happening here?
