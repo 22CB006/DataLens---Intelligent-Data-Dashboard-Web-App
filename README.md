@@ -3,15 +3,14 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18+-61DAFB.svg)](https://reactjs.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A **full-stack intelligent data dashboard** that automates dataset analysis, visualization, and insight generation with secure authentication and cloud deployment.
+A **personal learning project** - building a full-stack intelligent data dashboard to showcase my skills in backend development, data engineering, and modern web technologies.
 
 ---
 
-## 🎯 **Project Overview**
+## 🎯 **About This Project**
 
-**DataLens** is an enterprise-grade web application that allows users to:
+**DataLens** is a web application I built to learn and demonstrate full-stack development skills. The application allows users to:
 - 📤 **Upload datasets** (CSV, Excel, JSON)
 - 🔍 **Automatically analyze** data with statistical insights
 - 📊 **Visualize** data with interactive charts and graphs
@@ -131,7 +130,9 @@ DataLens/
 
 ---
 
-## 📚 **Skills You'll Learn**
+## 📚 **Skills I Learned**
+
+Through building this project, I gained hands-on experience with:
 
 | Category | Skills |
 |----------|--------|
@@ -224,44 +225,39 @@ vercel --prod
 
 ---
 
-## 🤝 **Contributing**
+## 💡 **Learning & Usage**
 
-This is a learning project, but contributions are welcome!
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+This is a personal skill development project built to showcase my abilities for job applications. However, if you're learning full-stack development, feel free to:
+- Explore the code structure
+- Learn from the implementation
+- Use it as a reference for your own projects
 
 ---
 
-## 📝 **License**
+## 👩‍💻 **Developer**
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**Arya Lakshmi M**  
+GitHub: [https://github.com/22CB006](https://github.com/22CB006)  
+Email: aryalakshmi.m2022csbs@sece.ac.in
 
----
-
-## 👨‍💻 **Author**
-
-**Akash** — [GitHub Profile](https://github.com/22CB006)
-
-Built as a portfolio project to demonstrate full-stack development, data engineering, and cloud deployment skills.
+*Built as a portfolio project to demonstrate full-stack development, data engineering, and modern web development skills.*
 
 ---
 
-## 🙏 **Acknowledgments**
+## 🎯 **Project Purpose**
 
-- FastAPI documentation and community
-- React and Vite teams
-- Open-source contributors
+This project was created to:
+- Learn modern full-stack development practices
+- Build a portfolio piece for job applications
+- Demonstrate proficiency in Python, FastAPI, React, and data engineering
+- Practice building production-ready applications
 
 ---
 
 ## 📧 **Contact**
 
-For questions or feedback, please open an issue on GitHub.
+For questions about the project or collaboration opportunities, feel free to reach out via GitHub or email.
 
 ---
 
-**⭐ Star this repository if you find it helpful!**
+**⭐ If you find this project helpful for learning, consider starring it!**
