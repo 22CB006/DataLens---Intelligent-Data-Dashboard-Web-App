@@ -14,6 +14,14 @@ from app.schemas.user import (
     TokenData
 )
 
+from app.schemas.dataset import (
+    DatasetUploadResponse,
+    DatasetResponse,
+    DatasetListResponse,
+    DatasetPreview,
+    DatasetInfo
+)
+
 __all__ = [
     "UserBase",
     "UserCreate",
@@ -21,5 +29,10 @@ __all__ = [
     "UserResponse",
     "UserLogin",
     "Token",
-    "TokenData"
+    "TokenData",
+    "DatasetUploadResponse",
+    "DatasetResponse",
+    "DatasetListResponse",
+    "DatasetPreview",
+    "DatasetInfo"
 ]

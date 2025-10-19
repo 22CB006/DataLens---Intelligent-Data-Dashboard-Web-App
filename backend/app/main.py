@@ -85,6 +85,10 @@ async def startup_event():
     print(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} starting up...")
     print(f"📚 API Documentation: http://localhost:8000/docs")
     print(f"🔧 Debug mode: {settings.DEBUG}")
+    
+    # Initialize upload directory
+    from app.services.file_handler import ensure_upload_directory
+    ensure_upload_directory()
 
 
 # Application shutdown event

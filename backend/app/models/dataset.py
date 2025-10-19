@@ -65,13 +65,14 @@ class Dataset(BaseModel):
     # File information
     filename = Column(
         String(255),
-        unique=True,  # Each file has unique name in storage
-        nullable=False
+        unique=True,  # Each file has unique UUID-based name in storage
+        nullable=False,
+        index=True  # Index for faster lookups
     )
     
     original_filename = Column(
         String(255),
-        nullable=False
+        nullable=False  # Not unique - users can upload files with same name
     )
     
     file_type = Column(
