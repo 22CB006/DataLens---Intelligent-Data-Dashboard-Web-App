@@ -102,13 +102,19 @@ async def shutdown_event():
 
 
 # Import API routers
-from app.api import auth, datasets, analysis
+from app.api import auth, users, datasets, analysis
 
 # Include API routers with versioning
 app.include_router(
     auth.router,
     prefix="/api/v1/auth",
     tags=["Authentication"]
+)
+
+app.include_router(
+    users.router,
+    prefix="/api/v1/users",
+    tags=["Users"]
 )
 
 app.include_router(
