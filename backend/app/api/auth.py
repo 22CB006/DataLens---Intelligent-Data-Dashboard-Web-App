@@ -141,7 +141,13 @@ async def login_user(
     
     return {
         "access_token": access_token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "message": "Welcome back! You've successfully logged in.",
+        "user": {
+            "email": user.email,
+            "username": user.username,
+            "full_name": user.full_name
+        }
     }
 
 

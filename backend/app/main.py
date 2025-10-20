@@ -14,6 +14,7 @@ What you'll learn:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.core.error_handlers import add_exception_handlers
 
 # Initialize FastAPI application
 app = FastAPI(
@@ -23,6 +24,9 @@ app = FastAPI(
     docs_url="/docs",  # Swagger UI at http://localhost:8000/docs
     redoc_url="/redoc",  # ReDoc at http://localhost:8000/redoc
 )
+
+# Add global exception handlers for user-friendly error messages
+add_exception_handlers(app)
 
 # Configure CORS (Cross-Origin Resource Sharing)
 # This allows our frontend (running on different port) to access the API

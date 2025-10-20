@@ -29,6 +29,7 @@ class DatasetUploadResponse(BaseModel):
     row_count: Optional[int] = None
     column_count: Optional[int] = None
     created_at: datetime
+    message: str = "Dataset uploaded successfully! You can now analyze your data."
     
     model_config = ConfigDict(from_attributes=True)
 
@@ -60,6 +61,7 @@ class DatasetListResponse(BaseModel):
     total: int
     skip: int
     limit: int
+    message: str = "Datasets loaded successfully."
 
 
 class DatasetPreview(BaseModel):
@@ -70,6 +72,7 @@ class DatasetPreview(BaseModel):
     """
     columns: list[str]
     data: list[dict]
+    message: str = "Dataset preview loaded successfully."
     total_rows: int
     preview_rows: int
 

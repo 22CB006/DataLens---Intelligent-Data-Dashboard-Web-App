@@ -90,7 +90,7 @@ async def upload_dataset(
             column_count=column_count
         )
         
-        # Return response
+        # Return response with success message
         return DatasetUploadResponse(
             id=dataset.id,
             filename=unique_filename,
@@ -99,7 +99,8 @@ async def upload_dataset(
             file_type=file_type,
             row_count=row_count,
             column_count=column_count,
-            created_at=dataset.created_at
+            created_at=dataset.created_at,
+            message="Dataset uploaded successfully! You can now analyze your data."
         )
     
     except Exception as e:
@@ -207,7 +208,7 @@ async def get_dataset(
     return dataset
 
 
-@router.delete("/{dataset_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{dataset_id}", status_code=status.HTTP_200_OK)
 async def delete_dataset(
     dataset_id: str,
     db: AsyncSession = Depends(get_db),
@@ -239,23 +240,37 @@ async def delete_dataset(
     if not dataset:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Dataset not found"
+            detail="Dataset not found",
+            headers={"X-User-Message": "The dataset could not be found. It may have already been deleted or you may not have access to it."}
         )
     
     # Check ownership
     if str(dataset.user_id) != str(current_user.id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to delete this dataset"
+            detail="Not authorized to delete this dataset",
+            headers={"X-User-Message": "You don't have permission to delete this dataset."}
         )
     
-    # Delete file
-    await delete_file(dataset.file_path)
-    
-    # Delete database record
-    await dataset_service.delete_dataset(db, dataset)
-    
-    return None
+    try:
+        # Delete file
+        await delete_file(dataset.file_path)
+        
+        # Delete database record
+        await dataset_service.delete_dataset(db, dataset)
+        
+        # Return success message
+        return {
+            "success": True,
+            "message": "Dataset deleted successfully.",
+            "dataset_id": str(dataset_id)
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error deleting dataset: {str(e)}",
+            headers={"X-User-Message": "Failed to delete the dataset. Please try again."}
+        )
 
 
 @router.get("/{dataset_id}/preview", response_model=DatasetPreview)

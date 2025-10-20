@@ -171,6 +171,7 @@ async def delete_dataset(
     Note:
         File deletion is handled separately in the route
     """
+    # Delete from database
     await db.delete(dataset)
     await db.commit()
 
