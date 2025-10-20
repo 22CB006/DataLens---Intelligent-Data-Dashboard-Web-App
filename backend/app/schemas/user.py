@@ -99,12 +99,20 @@ class Token(BaseModel):
     """
     access_token: str
     token_type: str = "bearer"
+    message: str
+    user: dict
     
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                "token_type": "bearer"
+                "token_type": "bearer",
+                "message": "Welcome back! You've successfully logged in.",
+                "user": {
+                    "email": "user@example.com",
+                    "username": "johndoe",
+                    "full_name": "John Doe"
+                }
             }
         }
     )
