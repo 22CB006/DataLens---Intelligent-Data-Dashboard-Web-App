@@ -74,9 +74,6 @@ const Home = () => {
             >
               Get Started →
             </Link>
-            <button className="border-2 border-gray-300 hover:border-navy-900 text-navy-900 font-semibold px-8 py-4 rounded-lg transition-colors text-lg">
-              View Demo
-            </button>
           </div>
         </div>
       </section>

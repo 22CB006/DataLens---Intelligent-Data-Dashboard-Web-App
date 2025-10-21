@@ -17,15 +17,16 @@ from typing import Dict, List, Optional
 from scipy import stats
 
 
-def calculate_descriptive_statistics(df: pd.DataFrame) -> Dict:
+def calculate_descriptive_statistics(df: pd.DataFrame, include_distributions: bool = True) -> Dict:
     """
     Calculate comprehensive descriptive statistics.
     
     Args:
         df: pandas DataFrame
+        include_distributions: Whether to include histogram/distribution data
     
     Returns:
-        Dictionary with statistics for each numeric column
+        Dictionary with statistics for each numeric column and optional distributions
     
     Example:
         >>> stats = calculate_descriptive_statistics(df)
@@ -36,6 +37,7 @@ def calculate_descriptive_statistics(df: pd.DataFrame) -> Dict:
         - 25th, 50th, 75th percentiles
         - skewness, kurtosis
         - variance, range
+        - distributions (histogram data)
     """
     numeric_df = df.select_dtypes(include=['number'])
     
@@ -43,6 +45,7 @@ def calculate_descriptive_statistics(df: pd.DataFrame) -> Dict:
         return {'error': 'No numeric columns found'}
     
     statistics = {}
+    distributions = {}
     
     for col in numeric_df.columns:
         col_data = numeric_df[col].dropna()
@@ -69,8 +72,30 @@ def calculate_descriptive_statistics(df: pd.DataFrame) -> Dict:
             'missing_count': int(numeric_df[col].isna().sum()),
             'missing_percentage': float((numeric_df[col].isna().sum() / len(numeric_df)) * 100)
         }
+        
+        # Generate distribution/histogram data
+        if include_distributions:
+            # Determine optimal number of bins using Sturges' rule
+            n_bins = min(int(np.ceil(np.log2(len(col_data)) + 1)), 20)
+            
+            # Create histogram
+            counts, bin_edges = np.histogram(col_data, bins=n_bins)
+            
+            # Create bin labels (midpoints)
+            bin_labels = [(bin_edges[i] + bin_edges[i+1]) / 2 for i in range(len(bin_edges)-1)]
+            
+            distributions[col] = {
+                'labels': [f'{label:.2f}' for label in bin_labels],
+                'values': [int(count) for count in counts],
+                'bins': n_bins,
+                'bin_edges': [float(edge) for edge in bin_edges]
+            }
     
-    return statistics
+    result = {'statistics': statistics}
+    if include_distributions:
+        result['distributions'] = distributions
+    
+    return result
 
 
 def calculate_correlation_matrix(df: pd.DataFrame, method: str = 'pearson') -> Dict:

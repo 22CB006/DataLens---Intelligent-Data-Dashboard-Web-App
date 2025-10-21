@@ -23,15 +23,23 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log('🌐 API Request:', config.method.toUpperCase(), config.url);
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error('❌ Request Error:', error);
+    return Promise.reject(error);
+  }
 );
 
 // Response interceptor - handle errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ API Response:', response.config.method.toUpperCase(), response.config.url, response.status);
+    return response;
+  },
   (error) => {
+    console.error('❌ API Error:', error.config?.method?.toUpperCase(), error.config?.url, error.response?.status);
     // Extract user-friendly message
     let userMessage = 'Something went wrong. Please try again.';
     

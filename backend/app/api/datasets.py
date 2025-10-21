@@ -208,6 +208,55 @@ async def get_dataset(
     return dataset
 
 
+@router.put("/{dataset_id}", response_model=DatasetResponse)
+async def update_dataset(
+    dataset_id: str,
+    update_data: dict,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update dataset metadata (e.g., rename).
+    
+    **Path Parameters:**
+    - dataset_id: Dataset UUID
+    
+    **Request Body:**
+    - filename: New filename (optional)
+    
+    **Returns:**
+    - Updated dataset object
+    
+    **Raises:**
+    - 401: Not authenticated
+    - 403: Not authorized (not owner)
+    - 404: Dataset not found
+    """
+    # Get dataset
+    dataset = await dataset_service.get_dataset_by_id(db, dataset_id)
+    
+    if not dataset:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Dataset not found"
+        )
+    
+    # Check ownership
+    if str(dataset.user_id) != str(current_user.id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to update this dataset"
+        )
+    
+    # Update filename if provided
+    if 'filename' in update_data and update_data['filename']:
+        dataset.filename = update_data['filename']
+        await db.commit()
+        await db.refresh(dataset)
+    
+    return dataset
+
+
 @router.delete("/{dataset_id}", status_code=status.HTTP_200_OK)
 async def delete_dataset(
     dataset_id: str,

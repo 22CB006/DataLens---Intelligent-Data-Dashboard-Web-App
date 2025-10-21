@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#3B82F6"/>
+  
+  <!-- Data visualization bars -->
+  <rect x="14" y="36" width="6" height="16" rx="1" fill="white" opacity="0.9"/>
+  <rect x="23" y="28" width="6" height="24" rx="1" fill="white" opacity="0.9"/>
+  <rect x="32" y="20" width="6" height="32" rx="1" fill="white" opacity="0.9"/>
+  <rect x="41" y="32" width="6" height="20" rx="1" fill="white" opacity="0.9"/>
+  
+  <!-- Lens/magnifying glass -->
+  <circle cx="44" cy="20" r="8" stroke="white" stroke-width="2.5" fill="none" opacity="0.95"/>
+  <line x1="50" y1="26" x2="55" y2="31" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+</svg>

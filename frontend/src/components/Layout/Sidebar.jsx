@@ -19,11 +19,9 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/dashboard/upload', icon: Upload, label: 'Upload Data' },
-    { path: '/dashboard/datasets', icon: Database, label: 'My Datasets' },
-    { path: '/dashboard/analytics', icon: BarChart3, label: 'Analytics' },
-    { path: '/dashboard/reports', icon: FileText, label: 'Reports' },
-    { path: '/dashboard/settings', icon: Settings, label: 'Settings' },
+    { path: '/upload', icon: Upload, label: 'Upload Data' },
+    { path: '/upload', icon: Database, label: 'My Datasets' },
+    { path: '/dashboard', icon: BarChart3, label: 'Analytics' },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -67,7 +65,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
             return (
               <Link
-                key={item.path}
+                key={item.label}
                 to={item.path}
                 onClick={onClose}
                 className={`

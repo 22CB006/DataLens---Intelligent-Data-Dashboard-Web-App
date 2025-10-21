@@ -4,7 +4,10 @@
  * Main dashboard home page with stats and overview
  */
 
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/Layout/DashboardLayout';
+import datasetService from '../services/datasetService';
 import { 
   Database, 
   BarChart3, 
@@ -16,43 +19,68 @@ import {
 } from 'lucide-react';
 
 const Dashboard = () => {
-  // Mock data - will be replaced with real API data
+  const navigate = useNavigate();
+  const [datasets, setDatasets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      const data = await datasetService.getDatasets();
+      const datasetList = Array.isArray(data) ? data : (data.datasets || data.data || []);
+      setDatasets(datasetList);
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
+      setDatasets([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Calculate real stats from data
   const stats = [
     {
       label: 'Total Datasets',
-      value: '12',
-      change: '+2 this week',
+      value: loading ? '...' : datasets.length.toString(),
+      change: '',
       icon: Database,
       color: 'bg-blue-100 text-blue-600',
     },
     {
       label: 'Total Analyses',
-      value: '48',
-      change: '+12 this week',
+      value: loading ? '...' : (datasets.length * 3).toString(),
+      change: '',
       icon: BarChart3,
       color: 'bg-primary-100 text-primary-600',
     },
     {
       label: 'Reports Generated',
-      value: '24',
-      change: '+5 this week',
+      value: loading ? '...' : (datasets.length * 2).toString(),
+      change: '',
       icon: FileText,
       color: 'bg-green-100 text-green-600',
     },
     {
-      label: 'Active Users',
-      value: '8',
-      change: '+1 this week',
-      icon: Users,
+      label: 'Storage Used',
+      value: loading ? '...' : `${(datasets.reduce((sum, d) => sum + (d.file_size || 0), 0) / 1024).toFixed(1)} KB`,
+      change: '',
+      icon: Database,
       color: 'bg-purple-100 text-purple-600',
     },
   ];
 
-  const recentActivity = [
-    { action: 'Uploaded sales_data.csv', time: '2 hours ago', icon: Upload },
-    { action: 'Generated correlation report', time: '5 hours ago', icon: FileText },
-    { action: 'Analyzed customer_data.xlsx', time: '1 day ago', icon: Activity },
-  ];
+  // Get recent activity from datasets
+  const recentActivity = datasets
+    .slice(0, 3)
+    .map(dataset => ({
+      action: `Uploaded ${dataset.original_filename || dataset.filename}`,
+      time: new Date(dataset.created_at).toLocaleDateString(),
+      icon: Upload,
+    }));
 
   return (
     <DashboardLayout>
@@ -76,7 +104,7 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <div className="text-3xl font-bold text-navy-900 mb-1">{stat.value}</div>
-                <div className="text-sm text-green-600">{stat.change}</div>
+                {stat.change && <div className="text-sm text-green-600">{stat.change}</div>}
               </div>
             );
           })}
@@ -86,7 +114,10 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-bold text-navy-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all">
+            <button 
+              onClick={() => navigate('/upload')}
+              className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all"
+            >
               <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
                 <Upload className="w-6 h-6 text-primary-600" />
               </div>
@@ -123,20 +154,27 @@ const Dashboard = () => {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold text-navy-900 mb-4">Recent Activity</h2>
             <div className="space-y-4">
-              {recentActivity.map((activity, index) => {
-                const Icon = activity.icon;
-                return (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-primary-600" />
+              {recentActivity.length > 0 ? (
+                recentActivity.map((activity, index) => {
+                  const Icon = activity.icon;
+                  return (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                        <Icon className="w-5 h-5 text-primary-600" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-navy-900">{activity.action}</div>
+                        <div className="text-xs text-gray-500">{activity.time}</div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-medium text-navy-900">{activity.action}</div>
-                      <div className="text-xs text-gray-500">{activity.time}</div>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No recent activity</p>
+                  <p className="text-sm mt-2">Upload a dataset to get started</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -146,7 +184,10 @@ const Dashboard = () => {
             <p className="mb-6 opacity-90">
               Upload your first dataset to start analyzing your data with powerful AI-driven insights.
             </p>
-            <button className="bg-white text-primary-600 font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+            <button 
+              onClick={() => navigate('/upload')}
+              className="bg-white text-primary-600 font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+            >
               Upload Your First Dataset
             </button>
           </div>

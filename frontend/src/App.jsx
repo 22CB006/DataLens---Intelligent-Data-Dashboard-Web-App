@@ -11,6 +11,9 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import UploadData from './pages/UploadData';
+import DatasetDetails from './pages/DatasetDetails';
+import Analysis from './pages/Analysis';
 
 function App() {
   return (
@@ -28,6 +31,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/upload"
+            element={
+              <ProtectedRoute>
+                <UploadData />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/datasets/:datasetId/preview"
+            element={
+              <ProtectedRoute>
+                <DatasetDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/datasets/:datasetId/analysis"
+            element={
+              <ProtectedRoute>
+                <Analysis />
               </ProtectedRoute>
             }
           />
