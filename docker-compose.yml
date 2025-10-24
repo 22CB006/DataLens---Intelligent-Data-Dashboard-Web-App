@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: datalens-db
+    environment:
+      POSTGRES_USER: datalens
+      POSTGRES_PASSWORD: datalens123
+      POSTGRES_DB: datalens
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U datalens"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - datalens-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: datalens-backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://datalens:datalens123@postgres:5432/datalens
+      SECRET_KEY: your-super-secret-key-change-this-min-32-chars
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      CORS_ORIGINS: http://localhost:3000,http://localhost
+      ENVIRONMENT: development
+      DEBUG: "True"
+    volumes:
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - datalens-network
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: datalens-frontend
+    ports:
+      - "80:80"
+    environment:
+      VITE_API_URL: http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - datalens-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  datalens-network:
+    driver: bridge

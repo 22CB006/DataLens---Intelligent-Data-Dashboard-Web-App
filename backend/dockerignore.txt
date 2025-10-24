@@ -1,0 +1,43 @@
+# Rename this file to .dockerignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Uploads (will be mounted as volume)
+uploads/
+
+# Database
+*.db
+*.sqlite3
