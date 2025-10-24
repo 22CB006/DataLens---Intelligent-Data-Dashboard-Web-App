@@ -103,3 +103,33 @@ temp/
 
 # Alembic
 alembic/versions/*.pyc
+
+**Backend:**
+```
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+.venv
+venv/
+uploads/*
+!uploads/.gitkeep
+*.db
+*.sqlite3
+.pytest_cache/
+.coverage
+htmlcov/
+```
+
+**Frontend:**
+```
+node_modules/
+dist/
+build/
+.env
+.env.local
+.DS_Store
+*.log
+coverage/
+```
