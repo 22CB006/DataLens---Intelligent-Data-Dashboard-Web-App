@@ -10,14 +10,15 @@ What you'll learn:
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy import select
-from typing import Optional, List
+from typing import Optional, List, Union
 from app.models.dataset import Dataset
 from app.models.user import User
 
 
 async def create_dataset(
-    db: AsyncSession,
+    db: Union[AsyncSession, Session],
     user_id: str,
     filename: str,
     original_filename: str,
@@ -56,34 +57,44 @@ async def create_dataset(
     )
     
     db.add(dataset)
-    await db.commit()
-    await db.refresh(dataset)
+    if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+        await db.commit()
+        await db.refresh(dataset)
+    else:
+        db.commit()
+        db.refresh(dataset)
     
     return dataset
 
 
 async def get_dataset_by_id(
-    db: AsyncSession,
+    db: Union[AsyncSession, Session],
     dataset_id: str
 ) -> Optional[Dataset]:
     """
     Get dataset by ID.
     
     Args:
-        db: Database session
+        db: Database session (async or sync)
         dataset_id: Dataset UUID
     
     Returns:
         Dataset object if found, None otherwise
     """
-    result = await db.execute(
-        select(Dataset).where(Dataset.id == dataset_id)
-    )
-    return result.scalar_one_or_none()
+    if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+        result = await db.execute(
+            select(Dataset).where(Dataset.id == dataset_id)
+        )
+        return result.scalar_one_or_none()
+    else:
+        result = db.execute(
+            select(Dataset).where(Dataset.id == dataset_id)
+        )
+        return result.scalar_one_or_none()
 
 
 async def get_user_datasets(
-    db: AsyncSession,
+    db: Union[AsyncSession, Session],
     user_id: str,
     skip: int = 0,
     limit: int = 100
@@ -92,7 +103,7 @@ async def get_user_datasets(
     Get all datasets for a user.
     
     Args:
-        db: Database session
+        db: Database session (async or sync)
         user_id: User's UUID
         skip: Number of records to skip
         limit: Maximum records to return
@@ -100,38 +111,54 @@ async def get_user_datasets(
     Returns:
         List of dataset objects
     """
-    result = await db.execute(
-        select(Dataset)
-        .where(Dataset.user_id == user_id)
-        .offset(skip)
-        .limit(limit)
-        .order_by(Dataset.created_at.desc())
-    )
-    return result.scalars().all()
+    if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+        result = await db.execute(
+            select(Dataset)
+            .where(Dataset.user_id == user_id)
+            .offset(skip)
+            .limit(limit)
+            .order_by(Dataset.created_at.desc())
+        )
+        return result.scalars().all()
+    else:
+        result = db.execute(
+            select(Dataset)
+            .where(Dataset.user_id == user_id)
+            .offset(skip)
+            .limit(limit)
+            .order_by(Dataset.created_at.desc())
+        )
+        return result.scalars().all()
 
 
 async def count_user_datasets(
-    db: AsyncSession,
+    db: Union[AsyncSession, Session],
     user_id: str
 ) -> int:
     """
     Count total datasets for a user.
     
     Args:
-        db: Database session
+        db: Database session (async or sync)
         user_id: User's UUID
     
     Returns:
         Total count of datasets
     """
-    result = await db.execute(
-        select(Dataset).where(Dataset.user_id == user_id)
-    )
-    return len(result.scalars().all())
+    if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+        result = await db.execute(
+            select(Dataset).where(Dataset.user_id == user_id)
+        )
+        return len(result.scalars().all())
+    else:
+        result = db.execute(
+            select(Dataset).where(Dataset.user_id == user_id)
+        )
+        return len(result.scalars().all())
 
 
 async def update_dataset_metadata(
-    db: AsyncSession,
+    db: Union[AsyncSession, Session],
     dataset: Dataset,
     row_count: int,
     column_count: int
@@ -140,7 +167,7 @@ async def update_dataset_metadata(
     Update dataset metadata after processing.
     
     Args:
-        db: Database session
+        db: Database session (async or sync)
         dataset: Dataset object
         row_count: Number of rows
         column_count: Number of columns
@@ -151,29 +178,36 @@ async def update_dataset_metadata(
     dataset.row_count = row_count
     dataset.column_count = column_count
     
-    await db.commit()
-    await db.refresh(dataset)
+    if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+        await db.commit()
+        await db.refresh(dataset)
+    else:
+        db.commit()
+        db.refresh(dataset)
     
     return dataset
 
 
 async def delete_dataset(
-    db: AsyncSession,
+    db: Union[AsyncSession, Session],
     dataset: Dataset
 ) -> None:
     """
     Delete dataset record.
     
     Args:
-        db: Database session
+        db: Database session (async or sync)
         dataset: Dataset object to delete
     
     Note:
         File deletion is handled separately in the route
     """
     # Delete from database
-    await db.delete(dataset)
-    await db.commit()
+    db.delete(dataset)
+    if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+        await db.commit()
+    else:
+        db.commit()
 
 
 # What's happening here?

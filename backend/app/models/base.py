@@ -10,10 +10,46 @@ What you'll learn:
 - Automatic timestamp management
 """
 
-from sqlalchemy import Column, DateTime, func
+from sqlalchemy import Column, DateTime, func, TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from app.core.database import Base
+
+
+class GUID(TypeDecorator):
+    """Platform-independent GUID type.
+    
+    Uses PostgreSQL's UUID type, otherwise uses CHAR(36), storing as stringified hex values.
+    This allows tests to run on SQLite while production uses PostgreSQL.
+    """
+    impl = CHAR
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(UUID())
+        else:
+            return dialect.type_descriptor(CHAR(36))
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        elif dialect.name == 'postgresql':
+            return str(value)
+        else:
+            if not isinstance(value, uuid.UUID):
+                return str(uuid.UUID(value))
+            else:
+                return str(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        else:
+            if not isinstance(value, uuid.UUID):
+                return uuid.UUID(value)
+            else:
+                return value
 
 
 class BaseModel(Base):
@@ -31,7 +67,7 @@ class BaseModel(Base):
     
     # Primary key as UUID (more secure than sequential integers)
     id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         primary_key=True,
         default=uuid.uuid4,
         unique=True,

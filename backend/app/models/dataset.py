@@ -10,11 +10,27 @@ What you'll learn:
 - File metadata storage
 """
 
-from sqlalchemy import Column, String, Integer, ForeignKey, Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import Column, String, Integer, ForeignKey, Enum as SQLEnum, JSON, TypeDecorator
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 import enum
-from app.models.base import BaseModel
+from app.models.base import BaseModel, GUID
+
+
+class JSONType(TypeDecorator):
+    """Platform-independent JSON type.
+    
+    Uses PostgreSQL's JSONB type, otherwise uses standard JSON.
+    This allows tests to run on SQLite while production uses PostgreSQL.
+    """
+    impl = JSON
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(JSONB())
+        else:
+            return dialect.type_descriptor(JSON())
 
 
 class DatasetStatus(str, enum.Enum):
@@ -56,7 +72,7 @@ class Dataset(BaseModel):
     
     # Foreign key to users table
     user_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("users.id", ondelete="CASCADE"),  # Delete datasets when user is deleted
         nullable=False,
         index=True  # Index for faster joins
@@ -104,7 +120,7 @@ class Dataset(BaseModel):
     # JSONB column for flexible column metadata
     # Example: {"columns": [{"name": "age", "type": "int64", "null_count": 0}, ...]}
     columns_info = Column(
-        JSONB,
+        JSONType,
         nullable=True
     )
     

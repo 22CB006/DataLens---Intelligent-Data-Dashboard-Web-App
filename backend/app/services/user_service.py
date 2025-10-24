@@ -11,63 +11,85 @@ What you'll learn:
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-from typing import Optional
+from typing import Optional, Union
+import inspect
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
 from app.core.security import get_password_hash, verify_password
 
 
-async def get_user_by_email(db: AsyncSession, email: str) -> Optional[User]:
+async def get_user_by_email(db: Union[AsyncSession, Session], email: str) -> Optional[User]:
     """
     Get user by email address.
     
     Args:
-        db: Database session
+        db: Database session (async or sync)
         email: User's email
     
     Returns:
         User object if found, None otherwise
     """
-    result = await db.execute(
-        select(User).where(User.email == email)
-    )
-    return result.scalar_one_or_none()
+    # Check if session is async
+    if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+        result = await db.execute(
+            select(User).where(User.email == email)
+        )
+        return result.scalar_one_or_none()
+    else:
+        # Synchronous session for testing
+        result = db.execute(
+            select(User).where(User.email == email)
+        )
+        return result.scalar_one_or_none()
 
 
-async def get_user_by_username(db: AsyncSession, username: str) -> Optional[User]:
+async def get_user_by_username(db: Union[AsyncSession, Session], username: str) -> Optional[User]:
     """
     Get user by username.
     
     Args:
-        db: Database session
+        db: Database session (async or sync)
         username: User's username
     
     Returns:
         User object if found, None otherwise
     """
-    result = await db.execute(
-        select(User).where(User.username == username)
-    )
-    return result.scalar_one_or_none()
+    if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+        result = await db.execute(
+            select(User).where(User.username == username)
+        )
+        return result.scalar_one_or_none()
+    else:
+        result = db.execute(
+            select(User).where(User.username == username)
+        )
+        return result.scalar_one_or_none()
 
 
-async def get_user_by_id(db: AsyncSession, user_id: str) -> Optional[User]:
+async def get_user_by_id(db: Union[AsyncSession, Session], user_id: str) -> Optional[User]:
     """
     Get user by ID.
     
     Args:
-        db: Database session
+        db: Database session (async or sync)
         user_id: User's UUID
     
     Returns:
         User object if found, None otherwise
     """
-    result = await db.execute(
-        select(User).where(User.id == user_id)
-    )
-    return result.scalar_one_or_none()
+    if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+        result = await db.execute(
+            select(User).where(User.id == user_id)
+        )
+        return result.scalar_one_or_none()
+    else:
+        result = db.execute(
+            select(User).where(User.id == user_id)
+        )
+        return result.scalar_one_or_none()
 
 
 async def create_user(db: AsyncSession, user_data: UserCreate) -> User:
@@ -107,8 +129,12 @@ async def create_user(db: AsyncSession, user_data: UserCreate) -> User:
     
     # Add to database
     db.add(db_user)
-    await db.commit()
-    await db.refresh(db_user)
+    if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+        await db.commit()
+        await db.refresh(db_user)
+    else:
+        db.commit()
+        db.refresh(db_user)
     
     return db_user
 
@@ -182,25 +208,32 @@ async def update_user(
     if user_data.password is not None:
         user.hashed_password = get_password_hash(user_data.password)
     
-    await db.commit()
-    await db.refresh(user)
+    if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+        await db.commit()
+        await db.refresh(user)
+    else:
+        db.commit()
+        db.refresh(user)
     
     return user
 
 
-async def delete_user(db: AsyncSession, user: User) -> None:
+async def delete_user(db: Union[AsyncSession, Session], user: User) -> None:
     """
     Delete user account.
     
     Args:
-        db: Database session
+        db: Database session (async or sync)
         user: User object to delete
     
     Note:
         This will also delete all user's datasets (cascade delete)
     """
-    await db.delete(user)
-    await db.commit()
+    db.delete(user)
+    if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+        await db.commit()
+    else:
+        db.commit()
 
 
 # What's happening here?

@@ -249,10 +249,23 @@ async def update_dataset(
         )
     
     # Update filename if provided
-    if 'filename' in update_data and update_data['filename']:
-        dataset.filename = update_data['filename']
-        await db.commit()
-        await db.refresh(dataset)
+    if 'filename' in update_data:
+        new_filename = update_data['filename']
+        # Validate filename is not empty
+        if not new_filename or not new_filename.strip():
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Filename cannot be empty"
+            )
+        dataset.filename = new_filename
+        # Handle both async and sync sessions
+        from sqlalchemy.ext.asyncio import AsyncSession
+        if isinstance(db, AsyncSession) or hasattr(db, 'is_async'):
+            await db.commit()
+            await db.refresh(dataset)
+        else:
+            db.commit()
+            db.refresh(dataset)
     
     return dataset
 
